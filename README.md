@@ -7,9 +7,10 @@
 Input: files(index.html)
 Output: URL(reponame.username.hicoder.one)
 
-giteaにデプロイ
-CI/CDが走る
-コンテナが立つ
+giteaにpush
+onepaas.ymlを検知したらCDを動かす
+sftpでファイルをnginxに送り込む
+nginxの設定ファイルを更新し、ドメインを書き込む
 サブドメインを切る
 アクセスできるようになる
 サブドメインを出力して終了
@@ -18,23 +19,22 @@ CI/CDが走る
 # goal
 - goal 1
   - HTML/CSS/JavaScript で作られたホームページのデプロイ(GitHub Pages 相当)
-- goal 1/1
-  - giteaをローカルとGCP上で立てる
-- goal 1/2
-  - giteaのpush hook(tagつき)
-- goal 1/3
-  - 何が必要か書き出して、YAML化できるか考える。
+  - nginxやcaddyを置いたアプリサーバとgiteaを置いたgitサーバの2台を用意
+
 # 実装方法
 - golang, k8s?
 - google domainをとっているのと移管が面倒なので、GCPを使う
+- ピタゴラスイッチをうまく組む能力が大事そう
 
 # Todo
 - [x] CIを先に組む 組んだ
-- [ ] giteaがないとどうしようもないので、たてる(docker-composeでたてる？)
+- [x] giteaがないとどうしようもないので、たてる(docker-composeでたてる？)
 - [x] 予約済みサブドメインを考える
 - [ ] ディレクトリ構成を考える
+- [ ] giteaの設定ファイルをローカルで最適にして、terraform&ansibleに組み込む
 
 # 仕様
+- repository直下に`onepaas.yml`が存在すればデプロイを行う
 
 ## directory構成
 ```text
@@ -65,3 +65,4 @@ one
 - ハッカソンのデプロイ基盤として活用できるかも
 - DBはひとまとめのコンテナで共用にする。
 - GCPでgiteaを安価に運用する ref. https://dany1468.hatenablog.com/entry/2020/02/29/095719
+- static fileのホストについてはYAMLが無でもよくて、存在していることが大事(deployを行うかどうかの判断)
