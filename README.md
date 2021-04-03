@@ -30,8 +30,12 @@ nginxの設定ファイルを更新し、ドメインを書き込む
 - [x] CIを先に組む 組んだ
 - [x] giteaがないとどうしようもないので、たてる(docker-composeでたてる？)
 - [x] 予約済みサブドメインを考える
+- [x] giteaを先にGCPでホストしてしまう
 - [ ] ディレクトリ構成を考える
 - [ ] giteaの設定ファイルをローカルで最適にして、terraform&ansibleに組み込む
+- [ ] caddyfileを操作する&reloadかける
+- [ ] CICD機構をつくる
+- [ ] アプリ: k8sの導入
 
 # 仕様
 - repository直下に`onepaas.yml`が存在すればデプロイを行う
@@ -42,7 +46,7 @@ Makefile
 infra/
   ansible/
   terraform/
-src/
+app/
 deployments/
   dockerfile/
   docker-compose.dev.yml
@@ -57,6 +61,9 @@ auth
 git
 onepaas
 one
+app
+stg
+blog
 ```
 
 # note
@@ -66,3 +73,7 @@ one
 - DBはひとまとめのコンテナで共用にする。
 - GCPでgiteaを安価に運用する ref. https://dany1468.hatenablog.com/entry/2020/02/29/095719
 - static fileのホストについてはYAMLが無でもよくて、存在していることが大事(deployを行うかどうかの判断)
+- とりあえず一貫で作って個々を作り込む方針にする。
+- https://pipecd.dev/docs/overview/ CDによさそう
+- applyしっぱなしでdestroyを忘れるので、それをS3バックエンドにしてtfstateをreadしてどこかの認証付きWebページから今立ち上がっているリソースを確認できるようにしたい。
+- cloud DNS https://cloud.google.com/dns/docs/tutorials/create-domain-tutorial?hl=ja
