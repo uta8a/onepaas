@@ -1,0 +1,51 @@
+- name: Setup environments
+  hosts: dev
+  # run as non-root
+  remote_user: "{{ app_user }}"
+  tasks:
+    - name: update and upgrade
+      apt:
+        update_cache: yes
+        upgrade: "yes"
+      become: yes
+    - name: install docker
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+      become: yes
+    - name: Gather the package facts
+      ansible.builtin.package_facts:
+        manager: auto
+    - name: Print the package facts
+      ansible.builtin.debug:
+        var: ansible_facts.packages
+    - name: add gpg key
+      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+      when: "'docker-ce' not in ansible_facts.packages"
+      become: yes
+    - name: register stable repository
+      shell: echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+      when: "'docker-ce' not in ansible_facts.packages"
+      become: yes
+    - name: install docker engine
+      apt:
+        update_cache: yes
+      become: yes
+    - name: install docker engine
+      apt:
+        pkg:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+      become: yes
+    - name: download docker-compose binary
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.28.5/docker-compose-Linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: 0755
+        group: "{{ app_user }}"
+        owner: "{{ app_user }}"
+      become: yes
